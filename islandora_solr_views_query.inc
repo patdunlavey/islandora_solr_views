@@ -245,6 +245,23 @@ class islandora_solr_views_query extends views_plugin_query {
   }
 
   /**
+   * Function add_orderby.
+   */
+  public function add_orderby($table, $field = NULL, $order = 'ASC', $alias = '', $params = array()) {
+    // Random sorting in solr requires having a field indexed with `type="rand"`. The standard
+    // schema.xml file provided by https://github.com/discoverygarden/basic-solr-config/blob/modular/conf/schema.xml
+    // does not provide one, so we don't either.
+    if($table !== 'rand') {
+      if($field && $order) {
+        $this->orderby[$field] = $order;
+      }
+    }
+    // Let other modules implement the random sort, or make any other modifications.
+    $context = compact('table', 'field', 'order', 'alias', 'params');
+    drupal_alter('islandors_solr_views_sort', $this->orderby, $context);
+  }
+
+  /**
    * Function add_parameter.
    */
   public function add_parameter($key, $value) {
